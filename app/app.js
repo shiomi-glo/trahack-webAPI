@@ -6,9 +6,19 @@ const path = require('path')
 const dbPath = "app/db/database.sqlite3"
 
 app.use(express.static(path.join(__dirname, 'public')))
+
+// Get all users
+app.get('/api/v1/users', (req, res) => {
+  const db = new sqlite3.Database(dbPath)
+
+  db.all('SELECT * FROM users', (err, rows) => {
+    res.json(rows)
+  })
+
+  db.close()
+})
 // Get a user
 app.get('/api/v1/users/:id', (req, res) => {
-  // Connect database
   const db = new sqlite3.Database(dbPath)
   const id = req.params.id
 
@@ -25,7 +35,6 @@ app.get('/api/v1/users/:id', (req, res) => {
 
 // Search users matching keyword
 app.get('/api/v1/search', (req, res) => {
-  // Connect database
   const db = new sqlite3.Database(dbPath)
   const keyword = req.query.q
 
