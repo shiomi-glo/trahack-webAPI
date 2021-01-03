@@ -76,6 +76,34 @@ app.post('/api/v1/users', async (req, res) => {
   db.close()
 })
 
+// update user
+app.put('/api/v1/users/:id', async (req, res) => {
+  const db = new sqlite3.Database(dbPath);
+  const id = req.params.id;
+
+  const run = (async (sql) => {
+    return new Promise((resolve, rejects) => {
+      db.run(sql, err => {
+        if(err){
+          res.status(500).send(err);
+          return rejects();
+        } else {
+          res.json({message: 'ユーザー情報を編集しました'});
+          return resolve();
+        }
+      })
+    })
+  })
+  db.get(`SELECT * FROM users WHERE id = ${id}`, ((err, row) => {
+    const name = req.body.name || row.name;
+    const profile = req.body.profile || row.profile;
+    const dateOfBirth = req.body.date_of_birth || row.dateOfBirth;
+
+    run(`UPDATE SET users name="${name}", profile="${profile}", date_of_birth="${dateOfBirth}", WHERE id="${id}"`)
+    db.close()
+  }));
+})
+
 console.log (process.env)
 const port = 3000;
 app.listen(port)
